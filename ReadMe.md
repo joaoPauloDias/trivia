@@ -30,6 +30,10 @@ Recebe como argumentos respectivamente número de questões (inteiro positivo) e
 
 ```docker run -ti --rm -e API_PORT=3000  mconf/runner:candidato 1 "History"```
 
+Também pode não receber nenhum argumento como parâmetro, nesse caso retorna um número arbitrário de questões de categorias aleatórias
+
+```docker run -ti --rm -e API_PORT=3000  mconf/runner:candidato```
+
 <details>
 
 <summary>Categorias Disponíveis</summary>

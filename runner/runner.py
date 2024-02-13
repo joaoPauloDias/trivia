@@ -51,8 +51,12 @@ def get_trivia_page(amount, category):
         print("Error:", response.status_code)
 
 if __name__ == "__main__":
-    print(api_port)
-    data = deconstruct_json(get_trivia_page(sys.argv[1] , sys.argv[2]))
+    
+    if len(sys.argv) == 3:
+        data = deconstruct_json(get_trivia_page(sys.argv[1] , sys.argv[2]))
+    else:
+        data = deconstruct_json(get_trivia_page(None, None))
+
     points = 0
     for item in data:
         print(f'Category: {item["Category"]} - Points: {item["Points"]}')
