@@ -6,4 +6,5 @@ COPY runner.py .
 
 RUN pip install requests
 
-CMD ["python3", "./runner.py"]
+ENTRYPOINT ["python3", "./runner.py"]
+CMD ["args"]
