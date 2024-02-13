@@ -136,7 +136,6 @@ func triviaHandler(w http.ResponseWriter, req *http.Request) {
 		log.Println(err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(questions)
 }
 
