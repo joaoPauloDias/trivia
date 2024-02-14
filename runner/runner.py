@@ -59,7 +59,7 @@ if __name__ == "__main__":
     
     points = 0
     for item in data:
-        print(f'Category: {item["Category"]} - Points: {item["Points"]}')
+        print(f'\nCategory: {item["Category"]} - Points: {item["Points"]}')
         print(f'Question: {item["Question"]}\n')
         questions = item["Incorrect Answers"] + [item["Correct Answer"]]
         random.shuffle(questions)

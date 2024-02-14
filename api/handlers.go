@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,7 +13,7 @@ import (
 // If "amount" is not provided, it defaults to 3.
 // If "category" is not provided, questions from all categories will be fetched.
 // Returns the fetched questions as a JSON response.
-func triviaHandler(w http.ResponseWriter, req *http.Request) {
+func triviaHandler(w http.ResponseWriter, req *http.Request, logger *log.Logger) {
 	amount := req.URL.Query().Get("amount")
 	if amount == "" {
 		amount = defaultAmount

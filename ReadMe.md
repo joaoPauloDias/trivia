@@ -39,16 +39,16 @@ Também pode não receber nenhum argumento como parâmetro, nesse caso retorna u
 <summary>Categorias Disponíveis</summary>
 
 - General Knowledge
-- Entertainment: Books
-- Entertainment: Film
-- Entertainment: Music
-- Entertainment: Musicals & Theatres
-- Entertainment: Television
-- Entertainment: Video Games
-- Entertainment: Board Games
-- Science & Nature
-- Science: Computers
-- Science: Mathematics
+- Books
+- Film
+- Music
+- Theatre
+- Television
+- Video Games
+- Board Games
+- Nature
+- Computers
+- Mathematics
 - Mythology
 - Sports
 - Geography
@@ -58,10 +58,10 @@ Também pode não receber nenhum argumento como parâmetro, nesse caso retorna u
 - Celebrities
 - Animals
 - Vehicles
-- Entertainment: Comics
-- Science: Gadgets
-- Entertainment: Japanese Anime & Manga
-- Entertainment: Cartoon & Animations
+- Comics
+- Gadgets
+- Anime
+- Cartoons
   
 </details>
 
