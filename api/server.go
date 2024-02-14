@@ -1,180 +1,25 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"net/url"
-	"os"
-	"time"
 
 	"github.com/urfave/negroni"
 )
 
-const (
-	defaultAmount = "3"
-	defaultPort   = "3000"
-)
-
-var (
-
-	// categoryMap maps category names to their corresponding IDs used in the external API.
-	categoryMap = map[string]int{
-		"General Knowledge":                     9,
-		"Entertainment: Books":                  10,
-		"Entertainment: Film":                   11,
-		"Entertainment: Music":                  12,
-		"Entertainment: Musicals & Theatres":    13,
-		"Entertainment: Television":             14,
-		"Entertainment: Video Games":            15,
-		"Entertainment: Board Games":            16,
-		"Science & Nature":                      17,
-		"Science: Computers":                    18,
-		"Science: Mathematics":                  19,
-		"Mythology":                             20,
-		"Sports":                                21,
-		"Geography":                             22,
-		"History":                               23,
-		"Politics":                              24,
-		"Art":                                   25,
-		"Celebrities":                           26,
-		"Animals":                               27,
-		"Vehicles":                              28,
-		"Entertainment: Comics":                 29,
-		"Science: Gadgets":                      30,
-		"Entertainment: Japanese Anime & Manga": 31,
-		"Entertainment: Cartoon & Animations":   32,
-	}
-
-	// client is the HTTP client used to make API requests.
-	client = &http.Client{
-		Timeout: 10 * time.Second,
-	}
-
-	logger = log.New(os.Stdout, "[api] ", log.LstdFlags)
-)
-
-// APIResponse represents the response from the trivia API.
-type APIResponse struct {
-	ResponseCode int        `json:"response_code"`
-	Results      []Question `json:"results"`
-}
-
-// Question represents a trivia question.
-type Question struct {
-	Category         string   `json:"category"`
-	Type             string   `json:"type"`
-	Difficulty       string   `json:"difficulty"`
-	Question         string   `json:"question"`
-	CorrectAnswer    string   `json:"correct_answer"`
-	IncorrectAnswers []string `json:"incorrect_answers"`
-	Points           int      `json:"points"`
-}
-
-// mapDifficultyToPoints maps the difficulty level of each question to a corresponding point value.
-func mapDifficultyToPoints(questions []Question) {
-	for i, question := range questions {
-		switch question.Difficulty {
-		case "easy":
-			questions[i].Points = 1
-		case "medium":
-			questions[i].Points = 2
-		case "hard":
-			questions[i].Points = 3
-		default:
-			questions[i].Points = 0
-		}
-	}
-}
-
-// fetchTriviaQuestions fetches trivia questions from the external API.
-// The amount parameter specifies the number of questions to fetch.
-// The categoryId parameter specifies the category ID of the questions to fetch.
-// If categoryId is empty, questions from all categories will be fetched.
-// Returns the fetched questions and any error encountered.
-func fetchTriviaQuestions(amount string, categoryId string) ([]Question, error) {
-	params := url.Values{}
-	params.Add("amount", amount)
-
-	if categoryId != "" {
-		params.Add("category", categoryId)
-	}
-	apiUrl := "https://opentdb.com/api.php?" + params.Encode()
-
-	resp, err := client.Get(apiUrl)
-	if err != nil {
-		return nil, fmt.Errorf("error making API call: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API call returned non-200 status: %d", resp.StatusCode)
-	}
-
-	var apiResponse APIResponse
-	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
-	if err != nil {
-		return nil, fmt.Errorf("error decoding JSON: %w", err)
-	}
-	mapDifficultyToPoints(apiResponse.Results)
-
-	return apiResponse.Results, nil
-}
-
-// triviaHandler handles the HTTP request for trivia questions.
-// It expects the "amount" and "category" query parameters.
-// If "amount" is not provided, it defaults to 3.
-// If "category" is not provided, questions from all categories will be fetched.
-// Returns the fetched questions as a JSON response.
-func triviaHandler(w http.ResponseWriter, req *http.Request) {
-	amount := req.URL.Query().Get("amount")
-	if amount == "" {
-		amount = defaultAmount
-	}
-
-	categoryName := req.URL.Query().Get("category")
-	categoryId := ""
-	if id, ok := categoryMap[categoryName]; ok {
-		categoryId = fmt.Sprintf("%d", id)
-	}
-
-	startTime := time.Now()
-	questions, err := fetchTriviaQuestions(amount, categoryId)
-	elapsedTime := time.Since(startTime)
-
-	if err != nil {
-		http.Error(w, "Failed to fetch trivia questions", http.StatusInternalServerError)
-		logger.Println(err)
-		return
-	}
-
-	logger.Println("Time taken to fetch trivia questions from external API:", elapsedTime)
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(questions)
-	if err != nil {
-		http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
-		logger.Println(err)
-		return
-	}
-}
-
 func main() {
-
-	port := os.Getenv("API_PORT")
-	if port == "" {
-		port = defaultPort
-	}
-	port = fmt.Sprintf(":%s", port)
-
-	logger.Println("Server running on port", port)
+	port := getServerPort()
+	logger := NewLogger()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/trivia", triviaHandler)
+	mux.HandleFunc("/trivia", func(w http.ResponseWriter, r *http.Request) {
+		triviaHandler(w, r, logger)
+	})
 
 	n := negroni.Classic()
 	n.UseHandler(mux)
+
+	logger.Println("Server running on port", port)
 
 	log.Fatal(http.ListenAndServe(port, n))
 }
