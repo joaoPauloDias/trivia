@@ -1,12 +1,12 @@
 package main
 
-// APIResponse represents the response from the trivia API.
+// APIResponse -> response from the trivia API.
 type APIResponse struct {
 	ResponseCode int        `json:"response_code"`
 	Results      []Question `json:"results"`
 }
 
-// Question represents a trivia question.
+// Question -> trivia question.
 type Question struct {
 	Category         string   `json:"category"`
 	Type             string   `json:"type"`

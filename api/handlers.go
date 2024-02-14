@@ -11,7 +11,7 @@ import (
 // triviaHandler handles the HTTP request for trivia questions.
 // It expects the "amount" and "category" query parameters.
 // If "amount" is not provided, it defaults to 3.
-// If "category" is not provided, questions from all categories will be fetched.
+// If "category" is not provided, questions from random categories are fetched.
 // Returns the fetched questions as a JSON response.
 func triviaHandler(w http.ResponseWriter, req *http.Request, logger *log.Logger) {
 	amount := req.URL.Query().Get("amount")

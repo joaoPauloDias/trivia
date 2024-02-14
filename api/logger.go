@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// NewLogger creates a new logger instance.
+// NewLogger creates a new api logger instance.
 func NewLogger() *log.Logger {
 	return log.New(os.Stdout, "[api] ", log.LstdFlags)
 }

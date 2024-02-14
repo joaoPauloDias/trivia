@@ -44,9 +44,9 @@ var (
 )
 
 // fetchTriviaQuestions fetches trivia questions from the external API.
-// The amount parameter specifies the number of questions to fetch.
-// The categoryId parameter specifies the category ID of the questions to fetch.
-// If categoryId is empty, questions from all categories will be fetched.
+// Amount -> number of questions to fetch.
+// CategoryId -> the category ID of the questions to fetch.
+// If categoryId is empty, questions from random categories are fetched.
 // Returns the fetched questions and any error encountered.
 func fetchTriviaQuestions(amount string, categoryId string) ([]Question, error) {
 	params := url.Values{}
