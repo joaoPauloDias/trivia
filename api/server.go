@@ -1,5 +1,3 @@
-// Package main provides the main server implementation for a trivia API.
-// It fetches trivia questions from an external API and serves them over HTTP.
 package main
 
 import (
@@ -14,38 +12,48 @@ import (
 	"github.com/urfave/negroni"
 )
 
-// categoryMap maps category names to their corresponding IDs used in the external API.
-var categoryMap = map[string]int{
-	"General Knowledge":                     9,
-	"Entertainment: Books":                  10,
-	"Entertainment: Film":                   11,
-	"Entertainment: Music":                  12,
-	"Entertainment: Musicals & Theatres":    13,
-	"Entertainment: Television":             14,
-	"Entertainment: Video Games":            15,
-	"Entertainment: Board Games":            16,
-	"Science & Nature":                      17,
-	"Science: Computers":                    18,
-	"Science: Mathematics":                  19,
-	"Mythology":                             20,
-	"Sports":                                21,
-	"Geography":                             22,
-	"History":                               23,
-	"Politics":                              24,
-	"Art":                                   25,
-	"Celebrities":                           26,
-	"Animals":                               27,
-	"Vehicles":                              28,
-	"Entertainment: Comics":                 29,
-	"Science: Gadgets":                      30,
-	"Entertainment: Japanese Anime & Manga": 31,
-	"Entertainment: Cartoon & Animations":   32,
-}
+const (
+	defaultAmount = "3"
+	defaultPort   = "3000"
+)
 
-// client is the HTTP client used to make API requests.
-var client = &http.Client{
-	Timeout: 10 * time.Second,
-}
+var (
+
+	// categoryMap maps category names to their corresponding IDs used in the external API.
+	categoryMap = map[string]int{
+		"General Knowledge":                     9,
+		"Entertainment: Books":                  10,
+		"Entertainment: Film":                   11,
+		"Entertainment: Music":                  12,
+		"Entertainment: Musicals & Theatres":    13,
+		"Entertainment: Television":             14,
+		"Entertainment: Video Games":            15,
+		"Entertainment: Board Games":            16,
+		"Science & Nature":                      17,
+		"Science: Computers":                    18,
+		"Science: Mathematics":                  19,
+		"Mythology":                             20,
+		"Sports":                                21,
+		"Geography":                             22,
+		"History":                               23,
+		"Politics":                              24,
+		"Art":                                   25,
+		"Celebrities":                           26,
+		"Animals":                               27,
+		"Vehicles":                              28,
+		"Entertainment: Comics":                 29,
+		"Science: Gadgets":                      30,
+		"Entertainment: Japanese Anime & Manga": 31,
+		"Entertainment: Cartoon & Animations":   32,
+	}
+
+	// client is the HTTP client used to make API requests.
+	client = &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	logger = log.New(os.Stdout, "[api] ", log.LstdFlags)
+)
 
 // APIResponse represents the response from the trivia API.
 type APIResponse struct {
@@ -122,31 +130,45 @@ func fetchTriviaQuestions(amount string, categoryId string) ([]Question, error) 
 func triviaHandler(w http.ResponseWriter, req *http.Request) {
 	amount := req.URL.Query().Get("amount")
 	if amount == "" {
-		amount = "3"
+		amount = defaultAmount
 	}
+
 	categoryName := req.URL.Query().Get("category")
 	categoryId := ""
 	if id, ok := categoryMap[categoryName]; ok {
 		categoryId = fmt.Sprintf("%d", id)
 	}
 
+	startTime := time.Now()
 	questions, err := fetchTriviaQuestions(amount, categoryId)
+	elapsedTime := time.Since(startTime)
+
 	if err != nil {
 		http.Error(w, "Failed to fetch trivia questions", http.StatusInternalServerError)
-		log.Println(err)
+		logger.Println(err)
 		return
 	}
+
+	logger.Println("Time taken to fetch trivia questions from external API:", elapsedTime)
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(questions)
+	err = json.NewEncoder(w).Encode(questions)
+	if err != nil {
+		http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
+		logger.Println(err)
+		return
+	}
 }
 
 func main() {
+
 	port := os.Getenv("API_PORT")
-	if(port == ""){
-		port = "3000"
+	if port == "" {
+		port = defaultPort
 	}
 	port = fmt.Sprintf(":%s", port)
-	fmt.Println("Server running on port", port)
+
+	logger.Println("Server running on port", port)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/trivia", triviaHandler)
