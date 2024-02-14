@@ -56,7 +56,7 @@ if __name__ == "__main__":
         data = deconstruct_json(get_trivia_page(sys.argv[1] , sys.argv[2]))
     else:
         data = deconstruct_json(get_trivia_page(None, None))
-
+    
     points = 0
     for item in data:
         print(f'Category: {item["Category"]} - Points: {item["Points"]}')

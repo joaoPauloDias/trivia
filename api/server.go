@@ -136,11 +136,15 @@ func triviaHandler(w http.ResponseWriter, req *http.Request) {
 		log.Println(err)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(questions)
 }
 
 func main() {
 	port := os.Getenv("API_PORT")
+	if(port == ""){
+		port = "3000"
+	}
 	port = fmt.Sprintf(":%s", port)
 	fmt.Println("Server running on port", port)
 
