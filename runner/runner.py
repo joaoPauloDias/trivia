@@ -44,11 +44,12 @@ def get_trivia_page(amount, category):
     url = f"{base_url}/trivia"
     if str(amount).isdigit() and category:
         url += f"?amount={amount}&category={category}"
-    response = requests.get(url)
-    if response.status_code == 200:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
         return response.json()
-    else:
-        print("Error:", response.status_code)
+    except ValueError as e:
+        print("Error:", e)
 
 if __name__ == "__main__":
     
