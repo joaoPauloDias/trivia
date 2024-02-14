@@ -35,8 +35,8 @@ def get_trivia_page(amount, category):
     Retrieves a trivia page from the API.
 
     Args:
-        amount (int): The number of trivia questions to retrieve.
-        category (str): The category of the trivia questions.
+        amount (int): Quantity of trivia questions.
+        category (str): Category of questions.
 
     Returns:
         dict: The JSON response containing the trivia questions.
